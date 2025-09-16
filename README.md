@@ -164,18 +164,26 @@ Add:
 ## 8. Mod Management
 
 - Manage mods:
+
   ```bash
   ./vhserver-mods
   ```
-- **Export client modpack** (copy content to client game folder and change steam Valheim launch options to run the script, eg. `./start_game_bepinex.sh %command%`):
+- **Export client modpack**:
+
   ```
   7: Export/Package Mods
   ```
-- Config files:
+
+  The pack location is in `Valheim-Mod-Manager/exports/`.
+  Copy content to client's game folder.
+  If you are on Linux Steam, set Valheim launch options: `./start_game_bepinex.sh %command%`). It does not copy configs, because the server configs prevails.
+- Config files (**you must run the server at least once with the new mod to show up its config**):
+
   ```
   serverfiles/BepInEx/config
   ```
 - Apply changes:
+
   ```bash
   ./vhserver restart
   ```
