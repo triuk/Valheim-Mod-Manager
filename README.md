@@ -176,7 +176,7 @@ Add:
 
   The pack location is in `Valheim-Mod-Manager/exports/`.
   Copy content to client's game folder.
-  If you are on Linux Steam, set Valheim launch options: `./start_game_bepinex.sh %command%`). It does not copy configs, because the server configs prevails.
+  If you are on Linux Steam, set Valheim launch options: `./start_game_bepinex.sh %command%`). It does not copy configs, because the server configs prevail.
 - Config files (**you must run the server at least once with the new mod to show up its config**):
 
   ```
@@ -192,7 +192,7 @@ Add:
 
 ## 9. Worlds, Saves & Backups
 
-- Save directory (you can copy existing world here):
+- Save directory (you can copy existing world flw+db here):
   ```
   /home/vhserver/.config/unity3d/IronGate/Valheim/worlds_local/
   ```
@@ -223,20 +223,30 @@ tail -f log/console/vhserver-console.log   # Live log
 
 ## 12. Troubleshooting
 
-- **Mods not loading (`isModded: False` during `./vhserver debug`)** Ensure `executable="./start_server_bepinex_local.sh"` in config.
-- **Wrong world loads** Check:
+- **Mods not loading (`isModded: False` during `./vhserver debug`)**
+  
+  Ensure `executable="./start_server_bepinex_local.sh"` is in `lgsm/config-lgsm/vhserver/vhserver.cfg` (STEP 5)
+
+  Ensure `serverfiles/start_server_bepinex_local.sh` has `exec ./valheim_server.x86_64 "$@"` (STEP 4)
+- **Wrong world loads, wrong password**
+
+  Check the above (STEP 5) and (STEP 4):
 
   ```ini
   worldname="MyNeatWorld"
   ```
 - **Server not listed / can’t join**
-  Check UDP ports 2456–2457 forwarding and firewall rules.
+
+  Check UDP ports 2456–2457 forwarding and firewall rules. (STEP 10)
 
 ---
 
 ## Done!
 
 You now have a **Valheim dedicated server** with:
+
 ✅ LinuxGSM automation
+
 ✅ BepInEx modding framework
+
 ✅ Valheim Mod Manager for easy mod handling
