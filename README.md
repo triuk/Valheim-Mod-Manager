@@ -1,154 +1,234 @@
-# Valheim Mod Manager
+# Valheim Dedicated Server on Proxmox (Debian 13 CT)
 
-## Overview
+**with [LinuxGSM](https://linuxgsm.com/servers/vhserver/) + [Valheim Mod Manager](https://github.com/cdp1337/Valheim-Mod-Manager) (fork)**
 
-Simple command-line application to manage mods for Valheim from Thunderstore.io.
+This repository documents how to set up a **modded Valheim server**.
+It has been tested on **Proxmox 9** with a **Debian 13 container**.
 
-* Manages locally installed mods for testing
-* Provides ZIP export for players
-* Deploys mods to server automatically upon publishing
+---
 
-![Application UI](docs/images/screenshot-ui.png)
+## Features
 
-![Resulting ZIP](docs/images/screenshot-zip.png)
+- Fully automated server management with **LinuxGSM**
+- Mod support using **BepInEx** via **Valheim Mod Manager (fork)**
+- Clean separation of configs and update-proof BepInEx wrapper
+- Easy world backups and client mod export
+- **Cron jobs** for health monitoring and automatic updates
 
-<video width="1280" height="720" controls=true autoplay=true muted=true>
-  <source src="docs/videos/Valheim-mod-manager-demo.webm" type="video/webm">
-</video> 
+---
 
-[Valheim mod manager demo video](docs/videos/Valheim-mod-manager-demo.webm)
+## 1. Base System Setup
 
-## Requirements
-(with pip)
-
-```bash
-pip3 install packaging python-magic paramiko
-````
-
-(with native packages)
+Run as **root**:
 
 ```bash
-sudo apt install python3-packaging python3-magic python3-paramiko python3-dateutil
+dpkg --add-architecture i386
+apt update && apt -y upgrade
+
+apt install -y \
+  bc binutils bsdmainutils distro-info jq \
+  lib32gcc-s1 lib32stdc++6 libatomic1 libc6-dev libc6:i386 \
+  libpulse-dev libsdl2-2.0-0:i386 \
+  netcat-openbsd pigz tmux unzip uuid-runtime \
+  curl wget ca-certificates file xz-utils bzip2 python3 \
+  mc nano \
+  python3-packaging python3-magic python3-paramiko python3-dateutil git
+
+# Create a dedicated user
+adduser vhserver
 ```
 
-Python3 and the [packaging, python-magic, paramiko] packages.
-Tested on Ubuntu 22.04 and Debian 12 with Python 3.11
+---
 
-## Configuration
+## 2. Install LinuxGSM & Valheim
 
-Copy `config.yml.DEFAULT` to `config.yml` and adjust as necessary.
-
-### debug
-
-Set the debug flag to `true` for debug output
-
-### gamedir
-
-Set to the location of your local Valheim install
-
-### exportprefix
-
-Set to the filename to export, useful for prepending your server name or something meaningful.
-
-### exportdir
-
-Directory to export bundled mods and change information, feel free to set to a directory managed by Nextcloud for auto-deployment for your users!
-
-### updatedays
-
-Set the number of days for "updated" packages, setting this to '14' will export any plugin updated in the last 14 days in the "updated" package export
-
-### sftp_host
-
-Set to the IP or hostname to automatically deploy "server" plugins during export.
-if empty, this logic is skipped
-
-### sftp_user
-
-Username to connect with via SSH, (key-based authentication only)
-
-### sftp_path
-
-Path on the dedicated server where Valheim is installed (for auto-deployment)
-
-### override_server
-
-Comma-separated list of plugins to force server deployment
-Usually only mods flagged with the "server" tag are deployed,
-but sometimes mod developers don't include that.
-
-
-## Using
-
-Run `./cli.py` to run the interactive script.
+Switch to the service user:
 
 ```bash
-Valheim Mod Manager
-
-1: List Mods Installed
-2: Install New Mod
-3: Check For Updates
-4: Uninstall Mod
-5: Revert Modifications
-6: Export/Package Mods
-Q: Quit Application
-
-Enter 1-6:
+su - vhserver
 ```
 
-The general workflow for using this script: run the script to load your current game mods into the manager.  You may need to select which author the mod should use (some mods are published by different authors but have the same name).
+Download LinuxGSM and install Valheim server:
 
-### 1. List Mods Installed
+```bash
+curl -Lo linuxgsm.sh https://linuxgsm.sh && chmod +x linuxgsm.sh && bash linuxgsm.sh vhserver
 
-![List installed mods](docs/images/list-installed.gif)
+./vhserver install
+```
 
-Listing the mods installed is self-explanatory; it lists the mods and versions you have installed currently.
+---
 
-### 2. Install New
+## 3. Install the Mod Manager
 
-![Install new mod](docs/images/install-new.gif)
+Clone my fork:
 
-Installing a new mod can be done by searching for the mod name or thunderstore URL.
-You will be presented with the option of which version to install, (defaults to the newest version).
-Dependencies are handled automatically.
+```bash
+git clone https://github.com/triuk/Valheim-Mod-Manager.git
+```
 
-### 3. Check for Updates
+Create a launcher:
 
-![Check for updates](docs/images/check-updates.gif)
+```bash
+printf '%s\n' '#!/bin/sh' 'SCRIPT_DIR="$(cd -- "$(dirname -- "$(readlink -f -- "$0")")" && pwd -P)/Valheim-Mod-Manager"' 'cd "$SCRIPT_DIR" || exit 1' 'exec python3 ./cli.py "$@"' > vhserver-mods && chmod +x vhserver-mods
+```
 
-Once loaded, you can update your local mods via `Check For Updates`.
-This will provide you the ability to quickly update any/all mods installed.
+Install **BepInEx**:
 
-### 4. Uninstall Mod
+```bash
+./vhserver-mods
+```
 
-![Uninstall mod](docs/images/remove-mod.gif)
+Choose:
 
-Mod removal is performed via `Uninstall Mod`, though for user export packages, it is important to inform users of which mods are removed as they will need to manually remove those mods upon updating.
-(ZIP files don't support a "delete this directory" option sadly.)
+```
+2: Install New Mod → BepInExPack_Valheim (denikson)
+Q: Quit
+```
 
-Your local game client is automatically updated when mods are installed, removed, or updated.
-This allows you to test a mod prior to deployment.
-**(Note, this is important!  Some mods will break your game/character!)**
-For misbehaving mods, they can be reverted via `Revert Modifications`.
-This will roll back a mod to its original deployed status (either removed altogether or reset back to a specific version).
+---
 
-Lastly, `Export/Package Mods` will create a variety of files for your users.  A full export will contain all mods and BepInEx, an update zip which contains only mods updated in the last (by default) 14 days, a CHANGELOG which can be published containing all changes, and a MODS file which contains all currently installed mods and their versions.
+## 4. Make BepInEx Update-Proof
 
+Copy and fix the startup wrapper:
 
-## Server Mods
+```bash
+cp -p serverfiles/start_server_bepinex.sh       serverfiles/start_server_bepinex_local.sh
 
-For mods that are tagged with the `Server-side` flag, 
-they are also copied into `.cache/server` for deployment to your private server.
+sed -i 's|^exec ./valheim_server\.x86_64.*|exec ./valheim_server.x86_64 "$@"|'   /home/vhserver/serverfiles/start_server_bepinex_local.sh
+```
 
-If the `sftp_` options are configured, the library will automatically upload
-these mods to your game server upon releasing a new bundle.
+---
 
-For manual deployments, simply copy these files to your game server when ready.
+## 5. Configure the Server
 
+Edit config:
 
-## Technical Notes
+```bash
+nano lgsm/config-lgsm/vhserver/vhserver.cfg
+```
 
-This application makes heavy use of file caching. 
-The full packages list from thunderstore.io is only downloaded once an hour (by default)
-and mod packages are stored in `.cache/packages`, so repeated installs 
-of the same package do not need to download from the site again.
+Example:
+
+```ini
+servername="MyAwesomeServer"
+serverpassword="strongPassword"
+worldname="MyNeatWorld"
+# public="1"
+# maxplayers="10"
+executable="./start_server_bepinex_local.sh"
+```
+
+---
+
+## 6. Running the Server
+
+Start:
+
+```bash
+./vhserver start
+```
+
+Details:
+
+```bash
+./vhserver details
+```
+
+Debug:
+
+```bash
+./vhserver debug
+```
+
+---
+
+## 7. Cron Automation (Optional)
+
+Edit crontab as vhserver user:
+
+```bash
+crontab -e
+```
+
+Add:
+
+```cron
+@reboot /home/vhserver/vhserver start >/dev/null 2>&1
+*/5 * * * * /home/vhserver/vhserver monitor > /dev/null 2>&1
+*/30 * * * * /home/vhserver/vhserver update > /dev/null 2>&1
+0 0 * * 0 /home/vhserver/vhserver update-lgsm > /dev/null 2>&1
+```
+
+---
+
+## 8. Mod Management
+
+- Manage mods:
+  ```bash
+  ./vhserver-mods
+  ```
+- **Export client modpack** (copy content to client game folder and change steam Valheim launch options to run the script, eg. `./start_game_bepinex.sh %command%`):
+  ```
+  7: Export/Package Mods
+  ```
+- Config files:
+  ```
+  serverfiles/BepInEx/config
+  ```
+- Apply changes:
+  ```bash
+  ./vhserver restart
+  ```
+
+---
+
+## 9. Worlds, Saves & Backups
+
+- Save directory (you can copy existing world here):
+  ```
+  /home/vhserver/.config/unity3d/IronGate/Valheim/worlds_local/
+  ```
+- Backup:
+  ```bash
+  ./vhserver backup
+  ```
+
+---
+
+## 10. Networking
+
+Forward **UDP 2456–2457** (default) to your container IP.
+
+---
+
+## 11. Useful Commands
+
+```bash
+./vhserver                # Show commands
+./vhserver details        # Server info
+./vhserver debug          # Verbose run
+./vhserver validate       # Validate Steam files
+tail -f log/console/vhserver-console.log   # Live log
+```
+
+---
+
+## 12. Troubleshooting
+
+- **Mods not loading (`isModded: False` during `./vhserver debug`)** Ensure `executable="./start_server_bepinex_local.sh"` in config.
+- **Wrong world loads** Check:
+
+  ```ini
+  worldname="MyNeatWorld"
+  ```
+- **Server not listed / can’t join**
+  Check UDP ports 2456–2457 forwarding and firewall rules.
+
+---
+
+## Done!
+
+You now have a **Valheim dedicated server** with:
+✅ LinuxGSM automation
+✅ BepInEx modding framework
+✅ Valheim Mod Manager for easy mod handling
