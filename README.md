@@ -161,7 +161,7 @@ Add:
 
 ---
 
-## 8. Mod Management
+## 8. Mod Management (for details see the [original](https://github.com/cdp1337/Valheim-Mod-Manager))
 
 - Manage mods:
 
@@ -225,9 +225,9 @@ tail -f log/console/vhserver-console.log   # Live log
 
 - **Mods not loading (`isModded: False` during `./vhserver debug`)**
   
-  Ensure `executable="./start_server_bepinex_local.sh"` is in `lgsm/config-lgsm/vhserver/vhserver.cfg` (STEP 5)
+  Ensure line `executable="./start_server_bepinex_local.sh"` is in `lgsm/config-lgsm/vhserver/vhserver.cfg` (STEP 5)
 
-  Ensure `serverfiles/start_server_bepinex_local.sh` has `exec ./valheim_server.x86_64 "$@"` (STEP 4)
+  Ensure file `serverfiles/start_server_bepinex_local.sh` has `exec ./valheim_server.x86_64 "$@"` (STEP 4)
 - **Wrong world loads, wrong password**
 
   Check the above (STEP 5) and (STEP 4):
