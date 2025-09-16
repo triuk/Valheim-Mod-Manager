@@ -5,7 +5,7 @@ debug: false
 
 ## Game Directory
 # Location where Valheim is installed, used to sync mods to your game client for testing
-gamedir: '/home/user/.steam/steamapps/common/Valheim/'
+gamedir: '/home/vhserver/serverfiles/'
 
 
 ## Export Filename (Prefix)
