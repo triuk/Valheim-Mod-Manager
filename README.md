@@ -245,17 +245,19 @@ tail -f log/console/vhserver-console.log   # Live log
 
 ---
 
-## Done!
-
-You now have a **Valheim dedicated server** with:
-
-✅ LinuxGSM automation
-
-✅ BepInEx modding framework
-
-✅ Valheim Mod Manager for easy mod handling
-
-As a bonus, you can have another instance following the same instructions, just by creating different user eg. `adduser vhserver2` with different port defined in STEP 5 eg. `port="2458"`.
+## 13. Running multiple servers
+Follow the same instructions, just:
+- Create different user eg. `adduser vhserver2`
+- STEP 3 before running the script you must change gamedir in
+  
+  `nano Valheim-Mod-Manager/config.yml`
+  
+  to the new user eg.
+  
+  `gamedir: '/home/vhserver2/serverfiles/'`
+  
+- STEP 5 define different port. Remember the server always use two: port and port+1, so if the first server was `port="2456"` (2457), this one must be eg. `port="2458"` (2459)
+- STEP 10 include new ports in the firewall
 
 ---
 
