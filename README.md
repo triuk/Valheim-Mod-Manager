@@ -263,6 +263,6 @@ Follow the same instructions, just:
 
 ## Changelog to the [original Valheim Mod Manager](https://github.com/cdp1337/Valheim-Mod-Manager)
 
-- ready to use `config.yml`, no changes needed for LGSM.
+- ready to use `config.yml`, no changes needed for LGSM, unless you make multiple-instances server.
 
 - added configs export function to have mod configs in sync with the client (not always the server config prevails).
