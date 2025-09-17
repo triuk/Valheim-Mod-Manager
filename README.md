@@ -258,6 +258,7 @@ Follow the same instructions, just:
   
 - STEP 5 define different port. Remember the server always use two: port and port+1, so if the first server was `port="2456"` (2457), this one must be eg. `port="2458"` (2459)
 - STEP 10 include new ports in the firewall
+- If you copy something e.g. BepInEx plugins from different server, do not forget to check the owner `chown -R vhserver2:vhserver2 /home/vhserver2/serverfiles`
 
 ---
 
