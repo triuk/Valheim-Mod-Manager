@@ -247,16 +247,16 @@ tail -f log/console/vhserver-console.log   # Live log
 
 ## 13. Running multiple servers
 Follow the same instructions, just:
-- Create different user eg. `adduser vhserver2`
+- Create different user e.g. `adduser vhserver2`
 - STEP 3 before running the script you must change gamedir in
   
   `nano Valheim-Mod-Manager/config.yml`
   
-  to the new user eg.
+  to the new user e.g.
   
   `gamedir: '/home/vhserver2/serverfiles/'`
   
-- STEP 5 define different port. Remember the server always use two: port and port+1, so if the first server was `port="2456"` (2457), this one must be eg. `port="2458"` (2459)
+- STEP 5 define different port. Remember, the server always uses two: port and port+1, so if the first server was `port="2456"` (2457), this one must be e.g. `port="2458"` (2459)
 - STEP 10 include new ports in the firewall
 - If you copy something e.g. BepInEx plugins from different server, do not forget to check the owner `chown -R vhserver2:vhserver2 /home/vhserver2/serverfiles`
 
