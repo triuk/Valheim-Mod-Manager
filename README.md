@@ -245,7 +245,45 @@ tail -f log/console/vhserver-console.log   # Live log
 
 ---
 
-## 13. Running multiple servers
+## 13. Creating HTTP server for modpack download (Optional)
+**Everything as a root.**
+
+- Create the service:
+  ```bash
+  nano /etc/systemd/system/valheim-mods.service
+  ```
+  
+  ```bash
+  [Unit]
+  Description=Simple HTTP server for Valheim mods
+  After=network.target
+  
+  [Service]
+  WorkingDirectory=/home/vhserver/Valheim-Mod-Manager/exports
+  ExecStart=/usr/bin/python3 -m http.server 8080
+  Restart=always
+  User=vhserver
+  
+  [Install]
+  WantedBy=multi-user.target
+  ```
+
+- Load the service:
+  ```bash
+  systemctl daemon-reload
+  systemctl enable --now valheim-mods.service
+  ```
+
+- Allow firewall if needed:
+    ```bash
+  ufw allow 8080/tcp
+  ```
+
+- The server is accessible at `http://<server_ip>:8080`. I advise to download the newest `*-configs.zip` every time.
+
+---
+
+## 14. Running multiple servers (Optional)
 Follow the same instructions, just:
 - Create different user e.g. `adduser vhserver2`
 - STEP 3 before running the script you must change gamedir in
@@ -258,6 +296,7 @@ Follow the same instructions, just:
   
 - STEP 5 define different port. Remember, the server always uses two: port and port+1, so if the first server was `port="2456"` (2457), this one must be e.g. `port="2458"` (2459)
 - STEP 10 include new ports in the firewall
+- STEP 13 pay attention to `WorkingDirectory`
 - If you copy something e.g. BepInEx plugins from different server, do not forget to check the owner `chown -R vhserver2:vhserver2 /home/vhserver2/serverfiles`
 
 ---
