@@ -400,6 +400,7 @@ def export_package():
         'wait' is returned to indicate that the user needs to press 'Enter' to continue
     """
     print('Exporting mod packages...')
+    conf = ModPackages.export_with_configs()
     full = ModPackages.export_full()
     updates = ModPackages.export_updates()
     changelog = ModPackages.export_changelog()
@@ -417,6 +418,7 @@ def export_package():
     ModPackages.commit_changes()
 
     print('Created bundles:')
+    print('Conf:      ' + conf)
     print('Full:      ' + full)
     print('Updates:   ' + updates)
     print('Changelog: ' + changelog)

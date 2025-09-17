@@ -747,6 +747,45 @@ class ModPackages(object):
         
         return packages
 
+    @classmethod
+    def export_with_configs(cls) -> str:
+        """
+        Export all installed mods but replace the client/config folder
+        with the server-side config folder.
+        """
+        srcdir_client = ".cache/client/"
+        srcdir_serverconfig = os.path.join(cls.config['gamedir'], 'BepInEx', 'config')
+
+        destzip = (
+            cls.config["exportprefix"]
+            + "-"
+            + datetime.datetime.now().strftime("%Y%m%d")
+            + "-configs.zip"
+        )
+        ziptarget = os.path.join(cls.config["exportdir"], destzip)
+
+        with zipfile.ZipFile(ziptarget, "w") as zipf:
+            # walk through client directory, but skip its "config" folder
+            for root, dirs, files in os.walk(srcdir_client):
+                if os.path.basename(root) == "config" and root.startswith(srcdir_client):
+                    continue
+                if "config" in dirs:
+                    dirs.remove("config")  # prevents os.walk from descending into it
+
+                for f in files:
+                    p = os.path.join(root, f)
+                    arcname = p[len(srcdir_client):]
+                    zipf.write(p, arcname=arcname)
+
+            # add server-side config folder, placed under "config/" in the archive
+            for root, _, files in os.walk(srcdir_serverconfig):
+                for f in files:
+                    p = os.path.join(root, f)
+                    rel = os.path.relpath(p, start=srcdir_serverconfig)
+                    arcname = os.path.join("BepInEx", "config", rel)
+                    zipf.write(p, arcname=arcname)
+
+        return ziptarget
     
     @classmethod
     def export_full(cls) -> str:
