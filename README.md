@@ -181,13 +181,13 @@ Add:
 
   - The pack location is in `Valheim-Mod-Manager/exports/`.
   - There are many archives, but I recommend copy content of the newest `*-configs.zip` to client's game folder to have a maximum sync.
-  - If you are on client Linux Steam, set Valheim launch options: `./start_game_bepinex.sh %command%`) and do not forget make the sh script executable!
+  - If you are on client Linux Steam, set Valheim launch options: `./start_game_bepinex.sh %command%` and do not forget make the sh script executable (+x)!
 
 ---
 
 ## 9. Worlds, Saves & Backups
 
-- Save directory (you can copy existing world flw+db here):
+- Save directory (you can copy existing world's flw+db here):
   ```
   /home/vhserver/.config/unity3d/IronGate/Valheim/worlds_local/
   ```
