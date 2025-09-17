@@ -94,7 +94,7 @@ Copy and fix the startup wrapper:
 ```bash
 cp -p serverfiles/start_server_bepinex.sh       serverfiles/start_server_bepinex_local.sh
 
-sed -i 's|^exec ./valheim_server\.x86_64.*|exec ./valheim_server.x86_64 "$@"|'   /home/vhserver/serverfiles/start_server_bepinex_local.sh
+sed -i 's|^exec ./valheim_server\.x86_64.*|exec ./valheim_server.x86_64 "$@"|'   serverfiles/start_server_bepinex_local.sh
 ```
 
 ---
