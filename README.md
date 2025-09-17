@@ -113,6 +113,7 @@ Example:
 servername="MyAwesomeServer"
 serverpassword="strongPassword"
 worldname="MyNeatWorld"
+port="2456"
 # public="1"
 # maxplayers="10"
 executable="./start_server_bepinex_local.sh"
@@ -200,7 +201,7 @@ Add:
 
 ## 10. Networking
 
-Forward **UDP 2456–2457** (default) to your container IP.
+Forward **UDP 2456–2457** (always defined port and port+1) to your container IP.
 
 ---
 
@@ -254,6 +255,7 @@ You now have a **Valheim dedicated server** with:
 
 ✅ Valheim Mod Manager for easy mod handling
 
+As a bonus, you can have another instance following the same instructions, just by creating different user eg. `adduser vhserver2` with different port defined in STEP 5 eg. `port="2458"`.
 
 ---
 
