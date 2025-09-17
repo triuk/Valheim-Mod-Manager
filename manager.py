@@ -765,25 +765,27 @@ class ModPackages(object):
         ziptarget = os.path.join(cls.config["exportdir"], destzip)
 
         with zipfile.ZipFile(ziptarget, "w") as zipf:
-            # walk through client directory, but skip its "config" folder
+            # 1) Add client files, but SKIP the BepInEx/config subtree
             for root, dirs, files in os.walk(srcdir_client):
-                if os.path.basename(root) == "config" and root.startswith(srcdir_client):
-                    continue
-                if "config" in dirs:
-                    dirs.remove("config")  # prevents os.walk from descending into it
-
+                rel_root = os.path.relpath(root, srcdir_client)
+    
+                # prevent descending into ".cache/client/BepInEx/config"
+                if rel_root == "BepInEx" and "config" in dirs:
+                    dirs.remove("config")
+    
                 for f in files:
                     p = os.path.join(root, f)
-                    arcname = p[len(srcdir_client):]
+                    arcname = os.path.relpath(p, start=srcdir_client)
                     zipf.write(p, arcname=arcname)
 
-            # add server-side config folder, placed under "config/" in the archive
-            for root, _, files in os.walk(srcdir_serverconfig):
-                for f in files:
-                    p = os.path.join(root, f)
-                    rel = os.path.relpath(p, start=srcdir_serverconfig)
-                    arcname = os.path.join("BepInEx", "config", rel)
-                    zipf.write(p, arcname=arcname)
+            # 2) Add server-side config under "BepInEx/config/" in the archive
+            if os.path.isdir(srcdir_serverconfig):
+                for root, _, files in os.walk(srcdir_serverconfig):
+                    for f in files:
+                        p = os.path.join(root, f)
+                        rel = os.path.relpath(p, start=srcdir_serverconfig)
+                        arcname = os.path.join("BepInEx", "config", rel)
+                        zipf.write(p, arcname=arcname)
 
         return ziptarget
     
