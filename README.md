@@ -168,25 +168,20 @@ Add:
   ```bash
   ./vhserver-mods
   ```
-- **Export client modpack**:
+- You must run the server at least once with the new mod to show up its config in:
+  `serverfiles/BepInEx/config`
 
-  ```
-  7: Export/Package Mods
-  ```
-
-  The pack location is in `Valheim-Mod-Manager/exports/`.
-  Copy content to client's game folder.
-  If you are on Linux Steam, set Valheim launch options: `./start_game_bepinex.sh %command%`). It does not copy configs, because the server configs prevail.
-- Config files (**you must run the server at least once with the new mod to show up its config**):
-
-  ```
-  serverfiles/BepInEx/config
-  ```
-- Apply changes:
+  - Apply mod changes and create new mod configs with:
 
   ```bash
   ./vhserver restart
   ```
+
+- **Export client modpack** with `7: Export/Package Mods`:
+
+  - The pack location is in `Valheim-Mod-Manager/exports/`.
+  - There are many archives, but I recommend copy content of the newest `*-configs.zip` to client's game folder to have a maximum sync.
+  - If you are on client Linux Steam, set Valheim launch options: `./start_game_bepinex.sh %command%`) and do not forget make the sh script executable!
 
 ---
 
@@ -225,19 +220,27 @@ tail -f log/console/vhserver-console.log   # Live log
 
 - **Mods not loading (`isModded: False` during `./vhserver debug`)**
   
-  Ensure line `executable="./start_server_bepinex_local.sh"` is in `lgsm/config-lgsm/vhserver/vhserver.cfg` (STEP 5)
+  (STEP 5) Ensure line `executable="./start_server_bepinex_local.sh"` is in `lgsm/config-lgsm/vhserver/vhserver.cfg`
 
-  Ensure file `serverfiles/start_server_bepinex_local.sh` has `exec ./valheim_server.x86_64 "$@"` (STEP 4)
+  (STEP 4) Ensure file `serverfiles/start_server_bepinex_local.sh` has `exec ./valheim_server.x86_64 "$@"`
 - **Wrong world loads, wrong password**
 
-  Check the above (STEP 5) and (STEP 4):
+  Check the above (STEP 5) and (STEP 4) and in there:
 
   ```ini
   worldname="MyNeatWorld"
   ```
 - **Server not listed / can’t join**
 
-  Check UDP ports 2456–2457 forwarding and firewall rules. (STEP 10)
+  (STEP 10) Check UDP ports 2456–2457 forwarding and firewall rules.
+
+- **Client not launching after mod archive extract in Linux**
+  
+  (STEP 8) Confirm the `start_game_bepinex.sh` in client game folder is executable (+x).
+
+- **Server disconnects after a while, unstable**
+
+  (STEP 7) remove all except the `@reboot` line from cron.
 
 ---
 
@@ -250,3 +253,12 @@ You now have a **Valheim dedicated server** with:
 ✅ BepInEx modding framework
 
 ✅ Valheim Mod Manager for easy mod handling
+
+
+---
+
+## Changelog to the [original Valheim Mod Manager](https://github.com/cdp1337/Valheim-Mod-Manager)
+
+- ready to use `config.yml`, no changes needed for LGSM.
+
+- added configs export function to have mod configs in sync with the client (not always the server config prevails).
