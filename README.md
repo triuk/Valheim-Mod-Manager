@@ -172,7 +172,7 @@ The first option launches the server after boot. The next three are supposed to 
   ./vhserver-mods
   ```
 - You must run the server at least once with the new mod to show up its config in:
-  `serverfiles/BepInEx/config`
+  `~/serverfiles/BepInEx/config`
 
   - Apply mod changes and create new mod configs with:
 
@@ -192,9 +192,9 @@ The first option launches the server after boot. The next three are supposed to 
 
 - Save directory (you can copy existing world's flw+db here, just change the name in STEP 5):
   ```bash
-  /home/vhserver/.config/unity3d/IronGate/Valheim/worlds_local/
+  ~/.config/unity3d/IronGate/Valheim/worlds_local/
   ```
-- Backup:
+- Backup the whole server (archive):
   ```bash
   ./vhserver backup
   ```
