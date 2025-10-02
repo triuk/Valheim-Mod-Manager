@@ -3,7 +3,7 @@
 **with [LinuxGSM](https://linuxgsm.com/servers/vhserver/) + [Valheim Mod Manager](https://github.com/cdp1337/Valheim-Mod-Manager) (fork)**
 
 This repository documents how to set up a **modded Valheim server**.
-It has been tested on **Proxmox 9** with a **Debian 13 container**.
+It has been tested on **Proxmox 9** with a **Debian 13 container**, but it works on any Linux that the LGSM supports.
 
 ---
 
@@ -155,10 +155,12 @@ Add:
 
 ```cron
 @reboot /home/vhserver/vhserver start >/dev/null 2>&1
-*/5 * * * * /home/vhserver/vhserver monitor > /dev/null 2>&1
-*/30 * * * * /home/vhserver/vhserver update > /dev/null 2>&1
-0 0 * * 0 /home/vhserver/vhserver update-lgsm > /dev/null 2>&1
+#*/5 * * * * /home/vhserver/vhserver monitor > /dev/null 2>&1
+#*/30 * * * * /home/vhserver/vhserver update > /dev/null 2>&1
+#0 0 * * 0 /home/vhserver/vhserver update-lgsm > /dev/null 2>&1
 ```
+
+The first option launches the server after boot. The next three are supposed to keep the server alive and regularly update it, but they made my server unstable, so I commented them out.
 
 ---
 
@@ -188,8 +190,8 @@ Add:
 
 ## 9. Worlds, Saves & Backups
 
-- Save directory (you can copy existing world's flw+db here):
-  ```
+- Save directory (you can copy existing world's flw+db here, just change the name in STEP 5):
+  ```bash
   /home/vhserver/.config/unity3d/IronGate/Valheim/worlds_local/
   ```
 - Backup:
@@ -199,13 +201,25 @@ Add:
 
 ---
 
-## 10. Networking
+## 10. Server admin (Optional)
+
+ Add you SteamID to the
+
+```bash
+nano ~/.config/unity3d/IronGate/Valheim/adminlist.txt
+```
+
+This is great with the `Server_devcommands` mod, which allows you to use admin console in the game. You must add `-console` to the end you your game launch options to activate in-game console (~). Enter `devcommands` to access the admin mode.
+
+---
+
+## 11. Networking
 
 Forward **UDP 2456–2457** (always defined port and port+1) to your container IP.
 
 ---
 
-## 11. Useful Commands
+## 12. Useful Commands
 
 ```bash
 ./vhserver                # Show commands
@@ -217,7 +231,7 @@ tail -f log/console/vhserver-console.log   # Live log
 
 ---
 
-## 12. Troubleshooting
+## 13. Troubleshooting
 
 - **Mods not loading (`isModded: False` during `./vhserver debug`)**
   
@@ -226,26 +240,26 @@ tail -f log/console/vhserver-console.log   # Live log
   (STEP 4) Ensure file `serverfiles/start_server_bepinex_local.sh` has `exec ./valheim_server.x86_64 "$@"`
 - **Wrong world loads, wrong password**
 
-  Check the above (STEP 5) and (STEP 4) and in there:
+  Do the above (STEP 5) and (STEP 4) and check the name in the file too:
 
   ```ini
   worldname="MyNeatWorld"
   ```
 - **Server not listed / can’t join**
 
-  (STEP 10) Check UDP ports 2456–2457 forwarding and firewall rules.
+  (STEP 10) Check UDP ports 2456–2457 forwarding and firewall rules. Also wait like ~5 mins after the first start to let the server generate all necessary stuff.
 
-- **Client not launching after mod archive extract in Linux**
+- **Client not launching after I extracted the modpack archive in Linux**
   
   (STEP 8) Confirm the `start_game_bepinex.sh` in client game folder is executable (+x).
 
 - **Server disconnects after a while, unstable**
 
-  (STEP 7) remove all except the `@reboot` line from cron.
+  (STEP 7) remove or comment out all except the `@reboot` line from cron.
 
 ---
 
-## 13. Creating HTTP server for modpack download (Optional)
+## 14. Creating HTTP server for modpack download (Optional)
 **Everything as a root.**
 
 - Create the service:
@@ -283,7 +297,7 @@ tail -f log/console/vhserver-console.log   # Live log
 
 ---
 
-## 14. Running multiple servers (Optional)
+## 15. Running multiple servers (Optional)
 Follow the same instructions, just:
 - Create different user e.g. `adduser vhserver2`
 - STEP 3 before running the script you must change gamedir in
@@ -295,9 +309,10 @@ Follow the same instructions, just:
   `gamedir: '/home/vhserver2/serverfiles/'`
   
 - STEP 5 define different port. Remember, the server always uses two: port and port+1, so if the first server was `port="2456"` (2457), this one must be e.g. `port="2458"` (2459)
+- STEP 7 change the path to the new user
 - STEP 10 include new ports in the firewall
 - STEP 13 pay attention to `WorkingDirectory`
-- If you copy something e.g. BepInEx plugins from different server, do not forget to check the owner `chown -R vhserver2:vhserver2 /home/vhserver2/serverfiles`
+- If you copy something e.g. BepInEx plugins from different server, do not forget to set the owner, e.g. `chown -R vhserver2:vhserver2 /home/vhserver2/serverfiles`
 
 ---
 
@@ -305,4 +320,4 @@ Follow the same instructions, just:
 
 - ready to use `config.yml`, no changes needed for LGSM, unless you make multiple-instances server.
 
-- added configs export function to have mod configs in sync with the client (not always the server config prevails).
+- added configs export function to have mod configs in sync with the client (the server config does not always prevails).
